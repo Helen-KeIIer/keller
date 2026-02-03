@@ -644,7 +644,9 @@ class Phosphene {
      
     const hue = 230 + Math.random() * 20; 
     const lightness = 30 + Math.random() * 15;
-    this.color = `hsla(${hue}, 100%, ${lightness}%,`; 
+    
+    // ZMENA: Nizsi sytost (ze 100% na 70%)
+    this.color = `hsla(${hue}, 70%, ${lightness}%,`; 
      
     this.life = 0;
     this.active = true;
@@ -663,6 +665,7 @@ class Phosphene {
     } else {
       // Blob (více nepravidelné)
       this.radius = 50 + Math.random() * 150;
+      // ZMENA: Nizsi alpha (z 0.15 na 0.08)
       this.maxAlpha = 0.08 + Math.random() * 0.15; 
       this.maxLife = 100 + Math.random() * 150; 
       this.vx = (Math.random() - 0.5) * 4; 
@@ -762,8 +765,7 @@ function checkWhiteBreathTrigger() {
         startWhiteBreath();
      }
   } else {
-     // UPRAVENO: Pokud není významně viditelná, okamžitě efekt zastav.
-     // Tím se zabrání tomu, aby "jel dolů" s uživatelem.
+     // Pokud neni vyznamne viditelna, okamzite efekt zastav.
      whiteGlowActive = false;
   }
 }
@@ -786,34 +788,53 @@ function animateWhiteGlow() {
   if (whiteGlowActive) {
     whiteBreath.time += 0.04; // Speed of breath
 
-    // UPRAVENO: 3 nádechy (cca Math.PI * 3) a pak zmizet
-    if (whiteBreath.time > Math.PI * 3) { 
+    // 1 cyklus (nadech+pauza) = 2*PI (cca 6.28)
+    // 3 cykly = 6*PI (cca 18.84)
+    const MAX_TIME = Math.PI * 6.5; 
+
+    if (whiteBreath.time > MAX_TIME) { 
        whiteGlowActive = false;
        whiteBreath.alpha = 0;
     } else {
-       const sine = Math.sin(whiteBreath.time);
-       if (sine < 0) {
-           whiteBreath.alpha = 0;
+       // Který jsme cyklus? (0, 1, 2)
+       const cycle = Math.floor(whiteBreath.time / (Math.PI * 2));
+       const localTime = whiteBreath.time % (Math.PI * 2);
+
+       // Nastaveni intenzity (klesajici)
+       let currentMaxAlpha = 0;
+       if (cycle === 0) currentMaxAlpha = 0.35;       // Prvni (silny)
+       else if (cycle === 1) currentMaxAlpha = 0.22;  // Druhy (stredni)
+       else if (cycle === 2) currentMaxAlpha = 0.10;  // Treti (jemny)
+
+       if (localTime > Math.PI) {
+           whiteBreath.alpha = 0; // Pauza
        } else {
-           // Výraznější efekt
-           whiteBreath.alpha = sine * 0.35; 
+           // Sinusovka
+           whiteBreath.alpha = Math.sin(localTime) * currentMaxAlpha;
        }
     }
 
     if (whiteBreath.alpha > 0.001) {
        const color = `hsla(220, 80%, 50%, ${whiteBreath.alpha})`;
        
-       // UPRAVENO: Větší poloměr, aby efekt zasahoval dále přes sekci
-       const r = Math.max(whiteGlowW, whiteGlowH) * 0.8;
-       const grad = whiteGlowCtx.createRadialGradient(
-           whiteBreath.x, whiteBreath.y, 0,
-           whiteBreath.x, whiteBreath.y, r
-       );
+       whiteGlowCtx.save();
+       whiteGlowCtx.translate(whiteBreath.x, whiteBreath.y);
+       
+       // ZMENA: Elipsa (sirsi nez vyssi)
+       whiteGlowCtx.scale(3.0, 0.8); 
+
+       const r = whiteGlowH * 0.4;
+
+       const grad = whiteGlowCtx.createRadialGradient(0, 0, 0, 0, 0, r);
        grad.addColorStop(0, color);
        grad.addColorStop(1, "hsla(220, 80%, 50%, 0)");
 
        whiteGlowCtx.fillStyle = grad;
-       whiteGlowCtx.fillRect(0, 0, whiteGlowW, whiteGlowH);
+       
+       const bigSize = Math.max(whiteGlowW, whiteGlowH) * 2;
+       whiteGlowCtx.fillRect(-bigSize, -bigSize, bigSize * 2, bigSize * 2);
+
+       whiteGlowCtx.restore();
     }
   }
 
