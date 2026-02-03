@@ -684,7 +684,7 @@ body.is-scrolled .hero__subtitle{
 }
 .timeline__text{ margin-top:6px; }
 
-/* PERIODS */
+/* PERIODS - UPRAVENO: Zarovnání vlevo, ale kontejner na střed */
 .periods-section{
   background: transparent;
   padding-top: 36px;
@@ -695,8 +695,12 @@ body.is-scrolled .hero__subtitle{
 .period:last-child{ border-bottom: 1px solid rgba(12,12,12,0.55); }
 .period__bar{ padding: 22px 0; }
 .period__year{
-  width: min(var(--theory-max), 100%);
-  margin: 0 auto;
+  /* UPRAVENO: Zrušeno centrování elementu (margin: 0 auto -> margin: 0),
+     tím pádem se "přilepí" k levému okraji vycentrovaného obsahu (který definuje padding-left) */
+  width: 100%;
+  max-width: var(--theory-max);
+  margin: 0;
+  
   font-family:"NeueHaasLight", sans-serif;
   font-weight:300;
   font-size: var(--hl-size);
@@ -704,6 +708,7 @@ body.is-scrolled .hero__subtitle{
   letter-spacing:0.01em;
   color: rgba(12,12,12,0.92);
   text-transform: uppercase;
+  text-align: left;
 }
 .period[data-key="p1"] .period__year{ white-space: nowrap; }
 .period__content{
@@ -713,8 +718,11 @@ body.is-scrolled .hero__subtitle{
 }
 .period.is-open .period__content{ max-height: 1400px; }
 .period__title{
-  width: min(var(--theory-max), 100%);
-  margin: 0 auto 22px auto;
+  /* UPRAVENO: Zarovnání vlevo */
+  width: 100%;
+  max-width: var(--theory-max);
+  margin: 0 0 22px 0;
+  
   font-family:"NeueHaasLight", sans-serif;
   font-weight:300;
   text-transform:uppercase;
@@ -724,8 +732,11 @@ body.is-scrolled .hero__subtitle{
   color: rgba(12,12,12,0.90);
 }
 .period__cols{
-  width: min(var(--theory-max), 100%);
-  margin: 0 auto;
+  /* UPRAVENO: Zarovnání vlevo */
+  width: 100%;
+  max-width: var(--theory-max);
+  margin: 0;
+  
   padding: 0 0 30px 0;
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
